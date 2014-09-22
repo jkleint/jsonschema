@@ -1,3 +1,5 @@
+import pickle
+
 from jsonschema import Draft4Validator, exceptions
 from jsonschema.tests.compat import mock, unittest
 
@@ -268,3 +270,20 @@ class TestErrorTree(unittest.TestCase):
         )
         tree = exceptions.ErrorTree([error])
         self.assertIsInstance(tree["foo"], exceptions.ErrorTree)
+
+
+class TestErrorsArePicklable(unittest.TestCase):
+    def test_validation_error_is_picklable(self):
+        err = exceptions.ValidationError(
+            "a message",
+            validator="foo",
+            instance="bar",
+            validator_value="some",
+            schema="schema",
+        )
+        unpickled = pickle.loads(pickle.dumps(err))
+        self.assertEqual(unpickled.message, "a message")
+        self.assertEqual(unpickled.validator, "foo")
+        self.assertEqual(unpickled.instance, "bar")
+        self.assertEqual(unpickled.validator_value, "some")
+        self.assertEqual(unpickled.schema, "schema")

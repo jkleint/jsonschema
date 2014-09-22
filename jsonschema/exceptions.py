@@ -28,6 +28,11 @@ class _Error(Exception):
         self.instance = instance
         self.schema = schema
 
+        # Initialize exception args or otherwise __reduce__ will return empty
+        # args tuple on Py2.7 and unpickling will fail because init requires at
+        # least one argument.
+        self.args = (message,)
+
     def __repr__(self):
         return "<%s: %r>" % (self.__class__.__name__, self.message)
 
